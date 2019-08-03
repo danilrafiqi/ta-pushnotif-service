@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post("/send-notif", (req, res) => {
+app.post("/", (req, res) => {
   const Tokens = req.body.tokens;
   const message = {
     data: {
@@ -20,12 +20,19 @@ app.post("/send-notif", (req, res) => {
     }
   };
   FCM.sendToMultipleToken(message, Tokens, function(err, response) {
-    if (err) {
-      res.send(err);
-      console.log("err--", err);
+    const pesan = response[0].response;
+    if (pesan.substr(0, 5) == "Error") {
+      res.send({
+        status: "error",
+        message: `${response[0].response}, Token not valid`,
+        data: []
+      });
     } else {
-      res.send({ message: "success" });
-      console.log("response-----", response);
+      res.send({
+        status: "success",
+        message: response[0].response,
+        data: []
+      });
     }
   });
 });
